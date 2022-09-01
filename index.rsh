@@ -1,3 +1,6 @@
+//  crowdfunding, voting and ability for the DAO to change it's state through a vote
+// parallel reduce should be able to fill this function by uploading a new version of the smart contract
+
 'reach 0.1';
 'use strict';
 
@@ -12,8 +15,8 @@ export const main =
 
     setOptions({ connectors: [ALGO] });
 
-    const Pollster =
-      Participant('Pollster', {
+    const Deployer =
+      Participant('Deployer', {
         ...Common,
         getParams: Fun([], Object({
           ticketPrice: UInt,  // this will be the crowdfunding element
@@ -23,29 +26,29 @@ export const main =
         }))
       });
 
-    const Voter =
-      ParticipantClass('Voter',
+    const Member =
+      ParticipantClass('Member',
         {
           ...Common,
           getVote: Fun([], Bool),
-          voterWas: Fun([Address], Null),
+          memberWas: Fun([Address], Null),
           shouldVote: Fun([], Bool),
         });
 
     init();
 
     const showOutcome = (which, forA, forB) => () => {
-      each([Pollster, Voter], () =>
+      each([Deployer, Member], () =>
         interact.showOutcome(which, forA, forB));
     };
 
-    Pollster.publish();
+    Deployer.publish();
     commit();
-    Pollster.only(() => {
+    Deployer.only(() => {
       const { ticketPrice, deadline, aliceAddr, bobAddr } =
         declassify(interact.getParams());
     });
-    Pollster.publish(ticketPrice, deadline, aliceAddr, bobAddr);
+    Deployer.publish(ticketPrice, deadline, aliceAddr, bobAddr);
 
     const [timeRemaining, keepGoing] = makeDeadline(deadline);
 
@@ -53,15 +56,15 @@ export const main =
       parallelReduce([0, 0])
         .invariant(balance() == (forA + forB) * ticketPrice)
         .while(keepGoing())
-        .case(Voter, () => ({
+        .case(Member, () => ({
           msg: declassify(interact.getVote()),
           when: declassify(interact.shouldVote()),
         }),
           (_) => ticketPrice,
-          (forAlice) => {
-            const voter = this;
-            Voter.only(() => interact.voterWas(voter));
-            const [nA, nB] = forAlice ? [1, 0] : [0, 1];
+          (forCharityOne) => {
+            const member = this;
+            Member.only(() => interact.memberWas(member));
+            const [nA, nB] = forCharityOne ? [1, 0] : [0, 1];
             return [forA + nA, forB + nB];
           })
         .timeout(timeRemaining(), () => {
