@@ -1,7 +1,7 @@
 'reach 0.1';
 'use strict';
 
-const [_, ALICE_WINS, BOB_WINS, TIMEOUT] = makeEnum(3);
+const [_, CHARITY_1_WINS, CHARITY_2_WINS, TIMEOUT] = makeEnum(3);
 
 const Common = {
   showOutcome: Fun([UInt, UInt, UInt], Null),
@@ -70,8 +70,8 @@ export const main =
           return [forA, forB];
         });
 
-    const outcome = forA >= forB ? ALICE_WINS : BOB_WINS;
-    const winner = outcome == ALICE_WINS ? aliceAddr : bobAddr;
+    const outcome = forA >= forB ? CHARITY_1_WINS : CHARITY_2_WINS;
+    const winner = outcome == CHARITY_1_WINS ? aliceAddr : bobAddr;
     transfer(balance()).to(winner);
     commit();
     showOutcome(outcome, forA, forB)();
