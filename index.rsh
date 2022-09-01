@@ -10,7 +10,7 @@ const Common = {
 export const main =
   Reach.App(() => {
 
-    setOptions({ connectors: [ETH, ALGO] });
+    setOptions({ connectors: [ALGO] });
 
     const Pollster =
       Participant('Pollster', {
