@@ -1,6 +1,8 @@
 //  crowdfunding, voting and ability for the DAO to change it's state through a vote
 // parallel reduce should be able to fill this function by uploading a new version of the smart contract
 
+// parralel reduce consensus step puts the application into a state where the final state is not decided and it is waiting for input from unlimited potential users
+
 'reach 0.1';
 'use strict';
 
@@ -52,6 +54,8 @@ export const main =
 
     const [timeRemaining, keepGoing] = makeDeadline(deadline);
 
+    // initialization of the parallel reduce consensus step
+    // two possible outcomes for a vote, forOne or forTwo
     const [forA, forB] =
       parallelReduce([0, 0])
         .invariant(balance() == (forA + forB) * ticketPrice)
